@@ -2,56 +2,247 @@ import React from 'react'
 import ReactDom from 'react-dom'
 import './board.css'
 import Axios from 'axios'
-// import Card1 from '../img/img1.png'
-// import Card2 from '../img/img2.png'
-// import Card3 from '../img/img3.png'
-// import Card4 from '../img/img4.png'
-// import Card5 from '../img/img5.jpg'
-// import Card6 from '../img/img6.jpg'
-// import Card7 from '../img/img7.jpg'
-// import Card8 from '../img/img8.jpg'
+import Wall from '../img/wall.png'
+import Wall2 from '../img/wall2.png'
+import Floor from '../img/floor.png'
+import Goal from '../img/goal.png'
+import LinkFront from '../img/link-front.png'
+import LinkBack from '../img/link-back.png'
+import LinkLeft from '../img/link-left.png'
+import LinkRight from '../img/link-right.png'
 
 class Board extends React.Component{
 	constructor(props){
 		super(props)
 
 		this.state = {
-			selected: null,
-			board: null,
-			cols: 4,
-			rows: 4,
-			current: null,
-			cardsState: Array(16).fill('card'),
+			cols: 20,
+			rows: 21,
 			refresh: true,
-			// images: [Card1, Card2, Card3, Card4, Card5, Card6, Card7, Card8],
-			ranImgs: Array(16).fill(null),
-			cont: 0
+			map: [[null]],
+			templateRows: '',
+			templateColumns: '',
+			width: 0,
+			linkPos: [[null]],
+			linkCoor: {x: 0, y: 0},
+			goalCoor: {x: 0, y: 0}
 		}
 
 		this.getMaze()
 	}
 
 	getMaze() {
-		Axios.get('http://34.210.35.174:3001/')
+		Axios.get('http://34.210.35.174:3001?w=12&h=12&type=json')
 			.then(res => {
-				console.log(res.data);
+				var tempRows = '';
+				var tempCols = '';
+
+				let newMap = [];
+				let newLink = [];
+				let jumpCol = {};
+
+				let prev = '';
+				for (let i = 0; i < res.data[0].length; i++) {
+					if (prev == '-' && res.data[0][i] == '-') {
+						jumpCol[i] = null;
+					}
+					prev = res.data[0][i];
+				}
+
+				for (var i = 0; i < res.data.length; i++) {
+
+					newMap.push([]);
+					newLink.push([]);
+
+					for (var j = 0; j < res.data[i].length; j++) {
+						if (jumpCol.hasOwnProperty(j)) continue;
+
+						if (res.data[i][j] == '+' || res.data[i][j] == '-' || res.data[i][j] == '|') {
+							newMap[i].push(Wall);
+						} else {
+							newMap[i].push(Floor);
+							if (i > 0) {
+								if (newMap[i-1][newMap[i].length-1] === Wall) {
+									newMap[i-1][newMap[i].length-1] = Wall2;
+								}
+							}
+						}
+
+						if (res.data[i][j] == 'p') {
+							newLink[i].push({backgroundImage: 'url(' +LinkFront+ ')'})
+							this.setState({linkCoor:{x: j, y: i}})
+						} else {
+							newLink[i].push({});
+						}
+
+						prev = res.data[i][j];
+					}
+				}
+
+				newMap[newMap.length-2][newMap.length-2] = Goal;
+				this.setState({goalCoor: {x: newMap.length-2, y: newMap.length-2}})
+
+				// console.log(newMap);
+
+				let tempWidth = 0;
+				for (let i = 0; i < newMap.length; i++) {
+					tempRows += '32px ';
+				}
+
+				for (let i = 0; i < newMap[0].length; i++) {
+					tempCols += '32px ';
+					tempWidth += 32;
+				}
+
+				this.setState({
+					map: newMap,
+					templateRows: tempRows,
+					templateColumns: tempCols,
+					width: tempWidth,
+					linkPos: newLink
+				});
 			})
 			.catch(error => {
 				console.log(error);
 			})
 	}
 
+	drawMaze(data) {
+		for (let i = 0; i < data.length; i++) {
+			for (let j = 0; j < data[i].length; j++) {
+				i+j;
+			}
+		}
+	}
+
 	handleClick(){
 
 	}
 
+	handleKeyDown(event){
+		console.log(event.key);
+		if (event.key == 'a' || event.key == 'ArrowLeft') {
+			let x = this.state.linkCoor.x;
+			let y = this.state.linkCoor.y;
+			if (!(this.state.map[y][x-1] == Wall || this.state.map[y][x-1] == Wall2)) {
+				let tempLinkPos = this.state.linkPos;
+				tempLinkPos[y][x] = {};
+				tempLinkPos[y][x-1] = {backgroundImage: 'url(' +LinkLeft+ ')'};
+				this.setState({
+					linkPos: tempLinkPos,
+					linkCoor: {x: x-1, y: y}
+				});
+
+				setTimeout(() => {
+					if (this.state.goalCoor.x == x-1 && this.state.goalCoor.y == y) {
+						alert("You've reached the goal!!!")
+					}
+				}, 100)
+			}
+		} else if (event.key == 's' || event.key == 'ArrowDown') {
+			let x = this.state.linkCoor.x;
+			let y = this.state.linkCoor.y;
+			if (!(this.state.map[y+1][x] == Wall || this.state.map[y+1][x] == Wall2)) {
+				let tempLinkPos = this.state.linkPos;
+				tempLinkPos[y][x] = {};
+				tempLinkPos[y+1][x] = {backgroundImage: 'url(' +LinkFront+ ')'};
+				this.setState({
+					linkPos: tempLinkPos,
+					linkCoor: {x: x, y: y+1}
+				});
+				setTimeout(() => {
+					if (this.state.goalCoor.x == x && this.state.goalCoor.y == y+1) {
+						alert("You've reached the goal!!!")
+					}
+				}, 100)
+			}
+		} else if (event.key == 'd' || event.key == 'ArrowRight') {
+			let x = this.state.linkCoor.x;
+			let y = this.state.linkCoor.y;
+			if (!(this.state.map[y][x+1] == Wall || this.state.map[y][x+1] == Wall2)) {
+				let tempLinkPos = this.state.linkPos;
+				tempLinkPos[y][x] = {};
+				tempLinkPos[y][x+1] = {backgroundImage: 'url(' +LinkRight+ ')'};
+				this.setState({
+					linkPos: tempLinkPos,
+					linkCoor: {x: x+1, y: y}
+				});
+				setTimeout(() => {
+					if (this.state.goalCoor.x == x+1 && this.state.goalCoor.y == y) {
+						alert("You've reached the goal!!!")
+					}
+				}, 100)
+			}
+		} else if (event.key == 'w' || event.key == 'ArrowUp') {
+			let x = this.state.linkCoor.x;
+			let y = this.state.linkCoor.y;
+			if (!(this.state.map[y-1][x] == Wall || this.state.map[y-1][x] == Wall2)) {
+				let tempLinkPos = this.state.linkPos;
+				tempLinkPos[y][x] = {};
+				tempLinkPos[y-1][x] = {backgroundImage: 'url(' +LinkBack+ ')'};
+				this.setState({
+					linkPos: tempLinkPos,
+					linkCoor: {x: x, y: y-1}
+				});
+				setTimeout(() => {
+					if (this.state.goalCoor.x == x && this.state.goalCoor.y == y-1) {
+						alert("You've reached the goal!!!")
+					}
+				}, 100)
+			}
+		}
+	}
+
 
 	render(){
+		const gridStyle = {
+			position: 'absolute',
+			display: 'grid',
+			gridTemplateRows: this.state.templateRows,
+			gridTemplateColumns: this.state.templateColumns,
+			gridGap: '0px',
+			margin: '0px 15px 15px 15px',
+			width: this.state.width,
+			marginLeft: -(this.state.width * 0.5),
+			left: '50%'
+		}
 		return (
-			<div className = "mainDiv">
-			<div className = "header">
-				<div className = "title"> Memory </div>
-			</div>
+			<div className = "mainDiv" onKeyDown={this.handleKeyDown.bind(this)} tabIndex="0" autoFocus>
+				<div className = "header">
+					<div className = "title"> Maze </div>
+				</div>
+				<div className = "inputBox">
+					<input placeholder = "width"/>
+					<input placeholder = "height"/>
+				</div>
+				<div style = {gridStyle}>
+					{
+						this.state.map.map((row)=>{
+							return (
+								row.map((col)=>{
+									return (
+										<div style = {{backgroundImage: 'url(' +col+ ')'}}>
+										</div>
+									)
+								})
+							)
+						})
+					}
+				</div>
+				<div style = {gridStyle}>
+					{
+						this.state.linkPos.map((row)=>{
+							return (
+								row.map((col)=>{
+									return (
+										<div style = {col}>
+										</div>
+									)
+								})
+							)
+						})
+					}
+				</div>
 			</div>
 		)
 	}

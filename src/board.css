@@ -39,62 +39,9 @@ html, body {
     top: 15px;
 }
 
-.gridStyle {
+.inputBox {
     position: relative;
-    left: 50%;
-    display: grid;
-    grid-template-rows: 180px 180px 180px 180px;
-    grid-template-columns: 140px 140px 140px 140px;
-    grid-gap: 10px;
-    width: 590px;
-    margin: 30px 30px 30px -295px;
-}
-
-.container {
-    width: 140px;
-    height: 180px;
-    perspective: 600px;
-    position: relative;
-}
-
-.card {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    transition: all 0.5s;
-    transform-style: preserve-3d;
-}
-
-.back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 8px;
-    border: 1px solid #333;
-    font-size: 10;
-    cursor: pointer;
-    backface-visibility: hidden;
-    transform: rotateY(180deg);
-}
-
-.front {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-image: url("/img/logo.png");
-    background-position: center;
-    background-size: cover;
-    font-size: 10;
-    border-radius: 8px;
-    border: 1px solid #333;
-    cursor: pointer;
-    backface-visibility: hidden;
-}
-
-.card:hover > .front {
-    opacity: 0.75;
-}
-
-.is-flipped {
-  transform: rotateY(180deg);
+    margin: 10px;
+    /* left: 50%; */
+    /* margin-left: calc(width * 0.5); */
 }
