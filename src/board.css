@@ -9,9 +9,9 @@ html, body {
 }
 
 .mainDiv {
+    background-image: url('../img/bg1.jpg') ;
     top: 0%;
     left: 0%;
-    /* background-image: url('/img/bg.jpg') ; */
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
@@ -21,7 +21,7 @@ html, body {
 .header {
     text-align: center;
     position: relative;
-    background-color: #6596ef;
+    background-color: #2C2F33;
     top: 0;
     left: 0;
     height: 50px;
@@ -34,14 +34,37 @@ html, body {
 .title {
     position: relative;
 	text-shadow: 0px 0px 7px rgba(0, 0, 0, 0.15);
-	color: #444;
+	color: #ccc;
 	font-size: 1.3em;
     top: 15px;
 }
 
 .inputBox {
     position: relative;
-    margin: 10px;
-    /* left: 50%; */
-    /* margin-left: calc(width * 0.5); */
+    margin: 10px auto;
+    width: 220px;
+    margin-top: 0;
+}
+
+.edit {
+    width: 50px;
+    margin: 0 10px 0 10px;
+}
+
+.button {
+    width: 50px;
+    margin: 0 10px 0 10px;
+}
+
+.inputTitles {
+    position: relative;
+    margin: 10px auto;
+    margin-bottom: 0;
+    width: 220px;
+}
+
+.labels {
+    display: inline-block;
+    width: 50px;
+    margin: 0 11px 0 11px;
 }

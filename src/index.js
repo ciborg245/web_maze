@@ -16,9 +16,8 @@ class Board extends React.Component{
 		super(props)
 
 		this.state = {
-			cols: 20,
-			rows: 21,
-			refresh: true,
+			w: 10,
+			h: 10,
 			map: [[null]],
 			templateRows: '',
 			templateColumns: '',
@@ -31,8 +30,13 @@ class Board extends React.Component{
 		this.getMaze()
 	}
 
+	// componentDidUpdate() {
+	// 	this.maze.focus();
+	// }
+
 	getMaze() {
-		Axios.get('http://34.210.35.174:3001?w=12&h=12&type=json')
+		let url = 'http://34.210.35.174:3001?w=' + this.state.w + '&h=' + this.state.h + '&type=json';
+		Axios.get(url)
 			.then(res => {
 				var tempRows = '';
 				var tempCols = '';
@@ -107,25 +111,27 @@ class Board extends React.Component{
 			})
 	}
 
-	drawMaze(data) {
-		for (let i = 0; i < data.length; i++) {
-			for (let j = 0; j < data[i].length; j++) {
-				i+j;
-			}
-		}
+	handleClick(){
+		this.getMaze();
 	}
 
-	handleClick(){
+	handleWidthChange(event) {
+		this.setState({w: event.target.value})
+	}
 
+	handleHeightChange(event) {
+		this.setState({h: event.target.value})
 	}
 
 	handleKeyDown(event){
-		console.log(event.key);
+		// console.log(event.key);
 		if (event.key == 'a' || event.key == 'ArrowLeft') {
 			let x = this.state.linkCoor.x;
 			let y = this.state.linkCoor.y;
+
 			if (!(this.state.map[y][x-1] == Wall || this.state.map[y][x-1] == Wall2)) {
 				let tempLinkPos = this.state.linkPos;
+
 				tempLinkPos[y][x] = {};
 				tempLinkPos[y][x-1] = {backgroundImage: 'url(' +LinkLeft+ ')'};
 				this.setState({
@@ -137,13 +143,15 @@ class Board extends React.Component{
 					if (this.state.goalCoor.x == x-1 && this.state.goalCoor.y == y) {
 						alert("You've reached the goal!!!")
 					}
-				}, 100)
+				}, 10)
 			}
 		} else if (event.key == 's' || event.key == 'ArrowDown') {
 			let x = this.state.linkCoor.x;
 			let y = this.state.linkCoor.y;
+
 			if (!(this.state.map[y+1][x] == Wall || this.state.map[y+1][x] == Wall2)) {
 				let tempLinkPos = this.state.linkPos;
+
 				tempLinkPos[y][x] = {};
 				tempLinkPos[y+1][x] = {backgroundImage: 'url(' +LinkFront+ ')'};
 				this.setState({
@@ -154,13 +162,15 @@ class Board extends React.Component{
 					if (this.state.goalCoor.x == x && this.state.goalCoor.y == y+1) {
 						alert("You've reached the goal!!!")
 					}
-				}, 100)
+				}, 10)
 			}
 		} else if (event.key == 'd' || event.key == 'ArrowRight') {
 			let x = this.state.linkCoor.x;
 			let y = this.state.linkCoor.y;
+
 			if (!(this.state.map[y][x+1] == Wall || this.state.map[y][x+1] == Wall2)) {
 				let tempLinkPos = this.state.linkPos;
+
 				tempLinkPos[y][x] = {};
 				tempLinkPos[y][x+1] = {backgroundImage: 'url(' +LinkRight+ ')'};
 				this.setState({
@@ -171,13 +181,15 @@ class Board extends React.Component{
 					if (this.state.goalCoor.x == x+1 && this.state.goalCoor.y == y) {
 						alert("You've reached the goal!!!")
 					}
-				}, 100)
+				}, 10)
 			}
 		} else if (event.key == 'w' || event.key == 'ArrowUp') {
 			let x = this.state.linkCoor.x;
 			let y = this.state.linkCoor.y;
+
 			if (!(this.state.map[y-1][x] == Wall || this.state.map[y-1][x] == Wall2)) {
 				let tempLinkPos = this.state.linkPos;
+
 				tempLinkPos[y][x] = {};
 				tempLinkPos[y-1][x] = {backgroundImage: 'url(' +LinkBack+ ')'};
 				this.setState({
@@ -188,7 +200,7 @@ class Board extends React.Component{
 					if (this.state.goalCoor.x == x && this.state.goalCoor.y == y-1) {
 						alert("You've reached the goal!!!")
 					}
-				}, 100)
+				}, 10)
 			}
 		}
 	}
@@ -207,41 +219,48 @@ class Board extends React.Component{
 			left: '50%'
 		}
 		return (
-			<div className = "mainDiv" onKeyDown={this.handleKeyDown.bind(this)} tabIndex="0" autoFocus>
+			<div className = "mainDiv" >
 				<div className = "header">
 					<div className = "title"> Maze </div>
 				</div>
+				<div className = "inputTitles">
+					<label className = "labels">Width</label>
+					<label className = "labels">Height</label>
+				</div>
 				<div className = "inputBox">
-					<input placeholder = "width"/>
-					<input placeholder = "height"/>
+					<input placeholder = "width" className = "edit" value = {this.state.w} onChange = {this.handleWidthChange.bind(this)}/>
+					<input placeholder = "height" className = "edit" value = {this.state.h} onChange = {this.handleHeightChange.bind(this)}/>
+					<input type = "button" value = "Go" className = "button" onClick = {this.handleClick.bind(this)}/>
 				</div>
-				<div style = {gridStyle}>
-					{
-						this.state.map.map((row)=>{
-							return (
-								row.map((col)=>{
-									return (
-										<div style = {{backgroundImage: 'url(' +col+ ')'}}>
-										</div>
-									)
-								})
-							)
-						})
-					}
-				</div>
-				<div style = {gridStyle}>
-					{
-						this.state.linkPos.map((row)=>{
-							return (
-								row.map((col)=>{
-									return (
-										<div style = {col}>
-										</div>
-									)
-								})
-							)
-						})
-					}
+				<div onKeyDown={this.handleKeyDown.bind(this)} tabIndex="0" autoFocus>
+					<div style = {gridStyle} ref={(div) => {this.maze = div;}}>
+						{
+							this.state.map.map((row)=>{
+								return (
+									row.map((col)=>{
+										return (
+											<div style = {{backgroundImage: 'url(' +col+ ')'}}>
+											</div>
+										)
+									})
+								)
+							})
+						}
+					</div>
+					<div style = {gridStyle}>
+						{
+							this.state.linkPos.map((row)=>{
+								return (
+									row.map((col)=>{
+										return (
+											<div style = {col}>
+											</div>
+										)
+									})
+								)
+							})
+						}
+					</div>
 				</div>
 			</div>
 		)

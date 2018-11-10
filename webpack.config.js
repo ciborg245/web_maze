@@ -1,6 +1,6 @@
 const config = {
 
-	mode : 'development',
+	mode : 'production',
 	output:{
 		publicPath: '/dist'
 	},
@@ -16,10 +16,7 @@ const config = {
 			test: /\.(png|jpg)$/,
 	        // include,
 	        // exclude,
-	        use: {
-	          loader: "file-loader",
-	          // options,
-	        },
+			use: ['url-loader']
 		}]
 	}
 }
